@@ -15,6 +15,7 @@ firecrawl-py = "^1.4.0"
 tqdm = "^4.66.5"
 unstructured = {extras = ["md"], version = "^0.16.3"}
 python-magic-bin = "^0.4.14"
+pydantic-settings = "^2.6.0"
 
 
 [build-system]

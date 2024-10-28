@@ -5,7 +5,7 @@ from langchain_community.document_loaders.markdown import UnstructuredFileLoader
 class CustomMarkdownLoader(UnstructuredFileLoader):
     def _get_elements(self) -> List:
         from unstructured.__version__ import __version__ as __unstructured_version__
-        from partition_fenced import partition_md_fenced
+        from rag_demo.partition_fenced import partition_md_fenced
 
         # NOTE(MthwRobinson) - enables the loader to work when you're using pre-release
         # versions of unstructured like 0.4.17-dev1
