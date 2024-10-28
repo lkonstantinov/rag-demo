@@ -21,3 +21,6 @@ pydantic-settings = "^2.6.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+rag = "rag_demo.app:main"

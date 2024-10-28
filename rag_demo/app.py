@@ -25,9 +25,6 @@ class Config(BaseSettings):
     docs_path: str
 
 
-config = Config()
-
-
 def setup_vector_store(config: Config) -> VectorStore:
     chroma_client = chromadb.PersistentClient(path=config.chroma_persist_directory)
     try:
@@ -78,21 +75,33 @@ def format_docs(docs):
     return "\n\n".join(doc.page_content for doc in docs)
 
 
-vectorstore = setup_vector_store(config)
-retriever = vectorstore.as_retriever()
+def rag(config: Config):
+    vectorstore = setup_vector_store(config)
+    retriever = vectorstore.as_retriever()
 
-prompt = hub.pull("rlm/rag-prompt")
+    prompt = hub.pull("rlm/rag-prompt")
 
-llm = ChatOpenAI(
-    model=config.openai_model, api_key=config.openai_api_key.get_secret_value()
-)
+    llm = ChatOpenAI(
+        model=config.openai_model, api_key=config.openai_api_key.get_secret_value()
+    )
 
-rag_chain = (
-    {"context": retriever | format_docs, "question": RunnablePassthrough()}
-    | prompt
-    | llm
-    | StrOutputParser()
-)
+    rag_chain = (
+        {"context": retriever | format_docs, "question": RunnablePassthrough()}
+        | prompt
+        | llm
+        | StrOutputParser()
+    )
 
-answer = rag_chain.invoke("How do I invoke a FDC3 intent from JS? Give me an example.")
-print(answer)
+    answer = rag_chain.invoke(
+        "How do I invoke a FDC3 intent from JS? Give me an example."
+    )
+    print(answer)
+
+
+def main():
+    config = Config()
+    rag(config)
+
+
+if __name__ == "__main__":
+    main()
