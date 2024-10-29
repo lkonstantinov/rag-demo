@@ -26,11 +26,15 @@ class Config(BaseSettings):
 
 
 def setup_vector_store(config: Config) -> VectorStore:
+    print(f"model {config.openai_model}")
+
     chroma_client = chromadb.PersistentClient(path=config.chroma_persist_directory)
     try:
         if chroma_client.get_collection(config.chroma_collection):
             return Chroma(
-                embedding_function=OpenAIEmbeddings(),
+                embedding_function=OpenAIEmbeddings(
+                    api_key=config.openai_api_key.get_secret_value(),
+                ),
                 collection_name=config.chroma_collection,
                 client=chroma_client,
             )
@@ -53,7 +57,7 @@ def setup_vector_store(config: Config) -> VectorStore:
     docs = []
     docs_lazy = loader.lazy_load()
 
-    for doc in tqdm(docs_lazy, desc="Loading documents", unit=" file"):
+    for doc in tqdm(docs_lazy, desc="Loading documents", unit=" file(s)"):
         docs.append(doc)
 
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
@@ -63,7 +67,9 @@ def setup_vector_store(config: Config) -> VectorStore:
 
     vectorstore = Chroma(
         client=chroma_client,
-        embedding_function=OpenAIEmbeddings(),
+        embedding_function=OpenAIEmbeddings(
+            api_key=config.openai_api_key.get_secret_value()
+        ),
         collection_name=config.chroma_collection,
     )
     vectorstore.add_documents(documents=splits)
